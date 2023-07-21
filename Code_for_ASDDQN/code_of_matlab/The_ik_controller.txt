@@ -1,0 +1,69 @@
+%RUN IN MATLAB PLEASE
+syms t_5 X_target X_original Y_target Y_original Z_target Z_original 
+syms s R alpha l_1_original l_2_original l_3_original l_4_original 
+syms X_P Y_P Z_P_ n gama_segment gama_section beta_segment 
+syms beta_section beta_1 beta_2 l_joint theta_1 l_1 l_2 l_3 L_4 r
+syms l a s x y
+%(X_target Y_target Z_target)is the target position of the robot arm end
+%tip; (X_original Y_original Z_original) is the original position of the
+%arm end tip; 
+%[X_P Y_P Z_P] is the end tip target position after calculation  
+X_original = 386.33597;
+Y_original = 128.23502;
+Z_original = 1087.9604-31;
+X_target = 386.33596;
+Y_target = 128.23512;
+Z_target = 1097.9604;
+X_P = X_target - X_original
+Y_P = Y_target - Y_original
+Z_P_ = Z_target - Z_original
+%n is the number of segments in one section
+n=5;
+%r is the distance bewteen two cable hole
+r=2.515;
+%l_joint is the length of every bending segment
+l_joint = 1.2;
+%theta_1 is the angle bewteen the X axis and the first cable hole
+theta_1 = pi/2;
+% Radius of locknut
+R=6;
+%step angle
+alpha = pi/120;
+%l_1_original l_2_original l_3_original l_4_original are of the length of every rope
+l_1_original = 12.0;
+l_2_original = 12.0;
+l_3_original = 12.0;
+l_4_original = 12.0;
+gama_section = atan(X_P/Y_P); gama_segment = gama_section;
+beta_segment = beta_section/n;
+beta_segment = 2/n*atan(sqrt(X_P*X_P+Y_P*Y_P)/Z_P_); 
+beta_1 = atan(cos(gama_segment)*tan(beta_segment));
+beta_2 = asin(-sin(gama_segment)*sin(beta_segment));
+%current length of every rope
+l_1 = 2*n*(l_joint/beta_1-r*sin(theta_1))*tan(beta_1/2)+2*n*(l_joint/beta_2-r*cos(theta_1))*tan(beta_2/2);
+l_2 = 2*n*(l_joint/beta_1-r*cos(theta_1))*tan(beta_1/2)+2*n*(l_joint/beta_2-r*sin(theta_1))*tan(beta_2/2);
+l_3 = 2*n*(l_joint/beta_1+r*sin(theta_1))*tan(beta_1/2)+2*n*(l_joint/beta_2+r*cos(theta_1))*tan(beta_2/2);
+l_4 = 2*n*(l_joint/beta_1+r*cos(theta_1))*tan(beta_1/2)+2*n*(l_joint/beta_2+r*sin(theta_1))*tan(beta_2/2);
+
+%driver value
+diff_l_1 = l_1 - l_1_original;
+diff_l_2 = l_2 - l_2_original;
+diff_l_3 = l_3 - l_3_original;
+diff_l_4 = l_4 - l_4_original;
+
+% s is the distance of each step R is the radius of the black locking shaft alpha is the angle of rotation of each step
+s = R*alpha;
+t_1 = diff_l_1/s;
+t_2 = diff_l_2/s;
+t_3 = diff_l_3/s;
+t_4 = diff_l_4/s; 
+
+
+x = X_target - X_original
+y = Y_target - Y_original
+a=sqrt(x^2+y^2)
+s=31
+r=eval(solve((l-a)^2 * (tan(s/l)*tan(s/l)+1)-l*l ==0))
+z=sqrt(r*r-(r-sqrt(x^2+y^2))*(r-sqrt(x^2+y^2)))
+z_diff=Z_P_-z
+zv = 50/3.5*z_diff
